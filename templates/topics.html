@@ -4,7 +4,7 @@
 {% endblock %}
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'home' %}">Boards </a> </li>
-<li class="breadcrumb-item"> <a href="{% url 'board_topics' board.pk%}"> {{ board.name }} </a></li>
+<li class="breadcrumb-item active">{{board.name}}</li>
 {% endblock %}
 {% block content %}
 <div class="mb-4">
@@ -21,9 +21,10 @@
       </tr>
     </thead>
     <tbody>
+      {% comment %} {% for topic in topics %} {% endcomment %}
       {% for topic in board.topics.all %}
         <tr>
-          <td>{{topic.subject}}</td>
+           <td><a href ="{% url 'topic_posts' board.pk topic.pk %}">{{ topic.subject}}</a></td>
           <td>{{topic.created_by.username}}</td>
           <td>0</td>
           <td>0</td>

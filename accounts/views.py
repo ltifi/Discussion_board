@@ -4,7 +4,6 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login as auth_login
 from .forms import SignUpForm
 
-
 def signup(request):
     form = SignUpForm()
     if request.method == 'POST':

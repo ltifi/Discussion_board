@@ -21,14 +21,13 @@
       </tr>
     </thead>
     <tbody>
-      {% comment %} {% for topic in topics %} {% endcomment %}
       {% for topic in board.topics.all %}
         <tr>
            <td><a href ="{% url 'topic_posts' board.pk topic.pk %}">{{ topic.subject}}</a></td>
-          <td>{{topic.created_by.username}}</td>
-          <td>0</td>
-          <td>0</td>
-          <td>{{topic.created_dt}}</td>
+           <td>{{topic.created_by.username}}</td>
+           <td>{{topic.comments}}</td>
+           <td>{{topic.views}}</td>
+           <td>{{ topic.created_dt}}</td>
         </tr>
       {% endfor %}
     </tbody>

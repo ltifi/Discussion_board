@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from .models import Topic, Post
 from .forms import NewTopicForm, PostForm
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+
 # Create your views here.
 
 
@@ -17,16 +19,13 @@ def home(request):
     # print(boards_names)
     # responce_html='<br>'.join(boards_names)
     # return HttpResponse(responce_html)
-    return render(request, 'home.html', {'boards': boards})
+    return render(request, "home.html", {"boards": boards})
 
 
 def board_topics(request, board_id):
-    # try:
-    #     board=Board.objects.get(pk=board_id)
-    # except Board.DoesNotExist:
-    #     raise Http404
     board = get_object_or_404(Board, pk=board_id)
-    return render(request, 'topics.html', {'board': board})
+    topics = board.topics.order_by("-created_dt").annotate(comments=Count("posts"))
+    return render(request, "topics.html", {"board": board, "topics": topics})
 
 
 @login_required
@@ -41,12 +40,11 @@ def new_topic(request, board_id):
             topic.save()
 
             post = Post.objects.create(
-                message=form.cleaned_data.get('message'),
+                message=form.cleaned_data.get("message"),
                 created_by=request.user,
-                topic=topic
-
+                topic=topic,
             )
-            return redirect('board_topics', board_id=board.pk)
+            return redirect("board_topics", board_id=board.pk)
     else:
         form = NewTopicForm()
     # if request.method == 'POST':
@@ -58,12 +56,14 @@ def new_topic(request, board_id):
     #     # post = Post.objects.create(
     #     #     message=message, topic=topic, created_by=user)
     #     return redirect('board_topics',board_id=board.pk)
-    return render(request, 'new_topic.html', {'board': board, 'form': form})
+    return render(request, "new_topic.html", {"board": board, "form": form})
 
 
 def topic_posts(request, board_id, topic_id):
     topic = get_object_or_404(Topic, board__pk=board_id, pk=topic_id)
-    return render(request, 'topic_posts.html', {'topic': topic})
+    topic.views+=1
+    topic.save()
+    return render(request, "topic_posts.html", {"topic": topic})
 
 
 @login_required
@@ -76,10 +76,10 @@ def reply_topic(request, board_id, topic_id):
             post.topic = topic
             topic.created_by = request.user
             topic.save()
-            return redirect('topic_posts',board_id=board_id, topic_id = topic_id)
+            return redirect("topic_posts", board_id=board_id, topic_id=topic_id)
     else:
         form = NewTopicForm()
-    return render(request, 'reply_topic.html', {'topic': topic, 'form': form})
+    return render(request, "reply_topic.html", {"topic": topic, "form": form})
 
 
 def about(request):
